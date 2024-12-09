@@ -1,0 +1,42 @@
+import csv
+import random
+import os  # For handling folder paths
+
+# Predefined lists of students and their matricules
+students = ["John Doe", "Jane Smith", "Alice Johnson", "Bob Brown", "Charlie Davis"]
+matricules = ["123456", "654321", "789012", "345678", "901234"]
+
+def generate_random_attendance():
+    return "present" if random.choice([True, False]) else "absent"
+
+def main():
+    # Prompt for course name and date
+    course_name = input("Enter course name: ")
+    date = input("Enter date (YYYY-MM-DD): ")
+    
+    # Prompt for folder path
+    folder_name = input("Enter the folder path to save the CSV file (e.g., C:/AttendanceRecords/): ")
+    
+
+    # Define the output file path
+    output_file = os.path.join(f"../../FET/Level400/SoftwareEng/Attendance",course_name,f"{course_name}_attendance_{date}.csv")
+
+    try:
+        # Create the CSV file and add header
+        with open(output_file, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Student Name", "Matricule", "Attendance"])
+
+            # Generate random attendance for each student
+            for student, matricule in zip(students, matricules):
+                attendance = generate_random_attendance()
+                writer.writerow([student, matricule, attendance])
+
+        print(f"Random attendance data saved to {output_file}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    main()
+
