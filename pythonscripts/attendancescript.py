@@ -17,7 +17,7 @@ students = [
 matricules = [f"FE22A{str(i+1).zfill(3)}" for i in range(len(students))]
 
 # List of courses
-courses = ["CEF401", "CEF473", "CEF405", "CEF415", "CEF451"]
+courses = ["CEF401", "CEF473", "CEF405", "CEF415", "CEF451","CEF427"]
 
 # Function to generate random attendance
 def generate_random_attendance():
@@ -26,7 +26,7 @@ def generate_random_attendance():
 # Function to generate dates for two weeks
 def generate_class_dates(start_date, course_schedule):
     dates = []
-    for i in range(2):  # Two weeks
+    for i in range(3):  # Two weeks
         for day in course_schedule:
             class_date = start_date + timedelta(days=(i * 7 + day - 1))
             dates.append(class_date.strftime("%Y-%m-%d"))
@@ -34,7 +34,7 @@ def generate_class_dates(start_date, course_schedule):
 
 def main():
     # Define the base folder path
-    base_folder = "../../FET/Level400/SoftwareEng/Attendance"
+    base_folder = "../data/FET/Level400/SoftwareEng/Attendance"
 
     # Define the course schedule (Monday = 1, ..., Friday = 5)
     course_schedule = [1, 3]  # Classes held on Monday and Wednesday
