@@ -5,16 +5,18 @@ from datetime import datetime, timedelta
 
 # Predefined list of students and their matricules
 students = [
-    "John Doe", "Jane Smith", "Alice Johnson", "Bob Brown", "Charlie Davis",
-    "Diana Prince", "Clark Kent", "Bruce Wayne", "Peter Parker", "Tony Stark",
-    "Natasha Romanoff", "Steve Rogers", "Wanda Maximoff", "Vision", "T'Challa",
-    "Scott Lang", "Hope Van Dyne", "Stephen Strange", "Carol Danvers", "Nick Fury",
-    "Gamora", "Nebula", "Rocket Raccoon", "Groot", "Thor Odinson",
-    "Loki Laufeyson", "Sam Wilson", "Bucky Barnes", "Shuri", "Okoye"
+   "John Doe" "Jane Smith" "Alice Johnson" "Bob Brown" "Charlie Davis"
+    "Emily Clark" "Michael Miller" "Sarah Wilson" "James Taylor" "Laura Martin"
+    "David Anderson" "Sophia Moore" "Daniel Harris" "Olivia Thompson" "Matthew White"
+    "Isabella Lewis" "Andrew Walker" "Emma Hall" "Joseph King" "Mia Scott"
+    "Christopher Green" "Amelia Adams" "Joshua Nelson" "Elizabeth Baker" "Ryan Carter"
+    "Grace Mitchell" "Lucas Perez" "Chloe Roberts" "Ethan Turner" "Abigail Phillips"
 ]
 
 # Generate matricules in the format FE22Axxx
 matricules = [f"FE22A{str(i).zfill(3)}" for i in range(1, 31)]
+
+#Change the students and matricules to come from the list Jamison generated
 
 # List of courses
 courses = ["CEF401", "CEF473", "CEF405", "CEF415", "CEF451","CEF427","CEF431"]
@@ -39,7 +41,7 @@ for course in courses:
 # Main function to generate attendance data
 def main():
     # Prompt for the base folder path
-    base_folder = "../data/FET/Level400/SoftwareEng/Attendance"
+    base_folder = "../data/FET/Level400/SoftwareEng/Attendance/2024-2025/Semester-2"
 
     # Loop through courses and generate data for 2 weeks
     for course_name, schedule in course_schedule.items():
