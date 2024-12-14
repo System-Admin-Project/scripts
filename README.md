@@ -22,3 +22,4 @@ Features:
 - Notifications
 - File Archival
 
+Link to Google doc : https://docs.google.com/document/d/13Ysek1ifWLCgFdCds2DRfwMGVSnJ4eWIiSly5Efg8yQ/edit?usp=sharing
