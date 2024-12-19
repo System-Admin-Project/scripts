@@ -1,4 +1,4 @@
-##!/bin/bash
+#!/bin/bash
 
 # Function to set folder permissions
 set_folder_permissions() {
@@ -47,8 +47,8 @@ set_folder_permissions() {
     sudo chown -R "$lecturer_name:$student_group" "$folder_path"
 
     # Set permissions:
-    # Lecturer: Full permissions (read, write, execute)
-    # Students: Read-only (read and execute)
+    # Lecturer: Full permissions (read, write, execute) = 7
+    # Students: Read and execute (view only) = 5
     echo "Setting permissions..."
     sudo chmod -R 750 "$folder_path"
 
@@ -56,7 +56,7 @@ set_folder_permissions() {
     echo "Folder details:"
     ls -ld "$folder_path"
     
-    echo "Permissions for $folder_path have been set: Lecturer can edit, students can read-only."
+    echo "Permissions for $folder_path have been set: Lecturer can edit, students can view."
 }
 
 # Check if script is run as root
