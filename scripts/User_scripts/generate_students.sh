@@ -5,7 +5,7 @@ output_file="students_users.txt"
 
 # Define students and matricules
 students=(
-    "John Doe" "Jane Smith" "Alice Johnson" "Bob Brown" "Charlie Davis"
+    "Abanda Sergio" "Jane Smith" "Alice Johnson" "Bob Brown" "Charlie Davis"
     "Emily Clark" "Michael Miller" "Sarah Wilson" "James Taylor" "Laura Martin"
     "David Anderson" "Sophia Moore" "Daniel Harris" "Olivia Thompson" "Matthew White"
     "Isabella Lewis" "Andrew Walker" "Emma Hall" "Joseph King" "Mia Scott"
@@ -37,18 +37,32 @@ echo "Creating student users and saving details to $output_file..."
 # Write header to the output file
 echo "Student Name, Matricule, Username, Password" > "$output_file"
 
-# Loop through students and create accounts
-for i in "${!students[@]}"; do
-    # Extract student details
-    student="${students[$i]}"
-    matricule="${matricules[$i]}"
-    username=$(echo "${student}" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')  # Create username
+# Function to create a student account
+create_student() {
+    local student="$1"
+    local matricule="$2"
+    local username=$(echo "${student}" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')  # Create username
+
+    # Check if the user already exists
+    if id "$username" &>/dev/null; then
+        echo "User '$username' already exists. Skipping."
+        return
+    fi
 
     # Generate password
-    password=$(generate_password "${student%% *}" "$matricule")
+    local password=$(generate_password "${student%% *}" "$matricule")
 
     # Add the system user (requires sudo permissions)
-    sudo useradd -m -s /bin/bash -c "$student" -p "$(openssl passwd -6 "$password")" "$username"
+    if ! sudo useradd -m -s /bin/bash -c "$student" "$username"; then
+        echo "Failed to create user: $username"
+        return
+    fi
+
+    # Set the password for the user
+    echo "$username:$password" | sudo chpasswd
+
+    # Ensure the account is unlocked
+    sudo passwd -u "$username"
 
     # Check if user was successfully created
     if [[ $? -eq 0 ]]; then
@@ -58,7 +72,25 @@ for i in "${!students[@]}"; do
     else
         echo "Failed to create user: $username"
     fi
-done
+}
+
+# Main script execution
+if [[ $# -eq 0 ]]; then
+    # Create all students if no names are provided
+    for i in "${!students[@]}"; do
+        create_student "${students[$i]}" "${matricules[$i]}"
+    done
+else
+    # Create specific students if names are provided
+    for student_name in "$@"; do
+        # Find the index of the student in the array
+        for i in "${!students[@]}"; do
+            if [[ "${students[$i]}" == "$student_name" ]]; then
+                create_student "${students[$i]}" "${matricules[$i]}"
+                break
+            fi
+        done
+    done
+fi
 
 echo "Student user creation completed. Details saved in $output_file."
-
