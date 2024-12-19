@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#Get the total number of students offering the course
+#Get the students with attendance less than 70%
+#Get the total number of classes
+#Individualised-reports
+#Daily-Weekly-Monthly?
+
 # Base directory where attendance CSV files are stored
 BASE_DIR="../../data/FET/Level400/SoftwareEng/Attendance/"
 
