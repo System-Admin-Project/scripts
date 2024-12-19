@@ -1,25 +1,30 @@
+# Generates attendance for every semester
+
 import csv
 import random
 import os
 from datetime import datetime, timedelta
 
-# Predefined list of students and their matricules
-students = [
-   "John Doe" "Jane Smith" "Alice Johnson" "Bob Brown" "Charlie Davis"
-    "Emily Clark" "Michael Miller" "Sarah Wilson" "James Taylor" "Laura Martin"
-    "David Anderson" "Sophia Moore" "Daniel Harris" "Olivia Thompson" "Matthew White"
-    "Isabella Lewis" "Andrew Walker" "Emma Hall" "Joseph King" "Mia Scott"
-    "Christopher Green" "Amelia Adams" "Joshua Nelson" "Elizabeth Baker" "Ryan Carter"
-    "Grace Mitchell" "Lucas Perez" "Chloe Roberts" "Ethan Turner" "Abigail Phillips"
-]
-
-# Generate matricules in the format FE22Axxx
-matricules = [f"FE22A{str(i).zfill(3)}" for i in range(1, 31)]
-
-#Change the students and matricules to come from the list Jamison generated
+# Function to read student names and matricules from students.txt
+def read_students(file_path):
+    students = []  # List to store student names
+    matricules = []  # List to store matricules
+    
+    try:
+        with open(file_path, mode='r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Skip header
+            for row in reader:
+                if len(row) >= 2:  # Ensure we have at least Name and Matricule
+                    students.append(row[0].strip())  # Student Name
+                    matricules.append(row[1].strip())  # Matricule
+    except Exception as e:
+        print(f"Error reading students file: {e}")
+    
+    return students, matricules
 
 # List of courses
-courses = ["CEF401", "CEF473", "CEF405", "CEF415", "CEF451","CEF427","CEF431"]
+courses = ["CEF401", "CEF473", "CEF405", "CEF415", "CEF451", "CEF427", "CEF431"]
 
 # Days of the week
 weekdays = ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -40,8 +45,17 @@ for course in courses:
 
 # Main function to generate attendance data
 def main():
+    # Path to the students.txt file
+    students_file = "students_users.txt"  # Update this path as needed
+    
+    # Read students and matricules from the file
+    students, matricules = read_students(students_file)
+    if not students or not matricules:
+        print("No students or matricules found. Exiting...")
+        return
+
     # Prompt for the base folder path
-    base_folder = "../data/FET/Level400/SoftwareEng/Attendance/2024-2025/Semester-2"
+    base_folder = "../data/FET/Level400/SoftwareEng/Attendance/2024-2025/Semester-1"
 
     # Loop through courses and generate data for 2 weeks
     for course_name, schedule in course_schedule.items():
