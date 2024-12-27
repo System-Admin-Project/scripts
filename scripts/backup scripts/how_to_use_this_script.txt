@@ -1,0 +1,13 @@
+to use this script,
+requirements/dependencies:
+-install rsync
+-install cron
+-install rclone, follow this link to see how to create the connection" https://youtu.be/nrzOdwVb5p4?si=kVTKPm_ZGHzgEwW6 "
+ to ensure the script runs on your system do the following
+-hv a "FET_backups" directory created
+-open the script and edit the directories to match ur system;
+BACKUP_DIR="/home/hinablack/FET_backups"
+SOURCE_DIR="/home/hinablack/FET"
+RCLONE_DIR="Admin:", replace Admin with the name u used to create ur remote connection
+
+run script and test for any issues.
