@@ -1,29 +1,26 @@
 #!/bin/bash
 
-# Output file
-output_file="students_users.txt"
+# Output log file
+output_log="created_students.log"
+echo "Log of created users" > "$output_log"
 
-# Define students and matricules
-students=(
-    "Abanda Sergio" "Jane Smith" "Alice Johnson" "Bob Brown" "Charlie Davis"
-    "Emily Clark" "Michael Miller" "Sarah Wilson" "James Taylor" "Laura Martin"
-    "David Anderson" "Sophia Moore" "Daniel Harris" "Olivia Thompson" "Matthew White"
-    "Isabella Lewis" "Andrew Walker" "Emma Hall" "Joseph King" "Mia Scott"
-    "Christopher Green" "Amelia Adams" "Joshua Nelson" "Elizabeth Baker" "Ryan Carter"
-    "Grace Mitchell" "Lucas Perez" "Chloe Roberts" "Ethan Turner" "Abigail Phillips"
-)
+# Function to generate a matricule
+generate_matricule() {
+    local total_users=$(awk -F: '$3 >= 1000 {print $1}' /etc/passwd | wc -l)
+    echo "FE22A$(printf "%03d" $((total_users + 1)))"
+}
 
-# Generate matricules in the format FE22Axxx
-matricules=()
-for i in "${!students[@]}"; do
-    matricules+=("FE22A$(printf "%03d" $((i + 1)))")
-done
+# Function to generate a username
+generate_username() {
+    local name="$1"
+    echo "${name,,}" | tr ' ' '_'  # Convert to lowercase and replace spaces with underscores
+}
 
-# Define function to generate random passwords
+# Function to generate a password
 generate_password() {
     local name="$1"
     local matricule="$2"
-    local base="${name:0:3}"  # First three letters of the first name
+    local base="${name:0:3}"  # First three letters of the name
     local matricule_suffix="${matricule:5:2}"  # Last two digits of matricule
     local special_characters=("!" "@" "#" "$" "%" "^" "&" "*")
     local special="${special_characters[$RANDOM % ${#special_characters[@]}]}"
@@ -31,66 +28,90 @@ generate_password() {
     echo "${base,,}${matricule_suffix}${special}${random_number}"  # Lowercase the base
 }
 
-# Start generating users
-echo "Creating student users and saving details to $output_file..."
+# Function to create a single user
+create_single_user() {
+    read -p "Enter student's full name: " name
+    read -p "Enter student's age: " age
+    read -p "Enter student's DOB (YYYY-MM-DD): " dob
 
-# Write header to the output file
-echo "Student Name, Matricule, Username, Password" > "$output_file"
+    matricule=$(generate_matricule)
+    username=$(generate_username "$name")
+    password=$(generate_password "$name" "$matricule")
 
-# Function to create a student account
-create_student() {
-    local student="$1"
-    local matricule="$2"
-    local username=$(echo "${student}" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')  # Create username
-
-    # Check if the user already exists
+    # Check if the username already exists
     if id "$username" &>/dev/null; then
-        echo "User '$username' already exists. Skipping."
+        echo "User '$username' already exists. Skipping..."
         return
     fi
 
-    # Generate password
-    local password=$(generate_password "${student%% *}" "$matricule")
-
-    # Add the system user (requires sudo permissions)
-    if ! sudo useradd -m -s /bin/bash -c "$student" "$username"; then
-        echo "Failed to create user: $username"
-        return
-    fi
-
-    # Set the password for the user
-    echo "$username:$password" | sudo chpasswd
-
-    # Ensure the account is unlocked
-    sudo passwd -u "$username"
-
-    # Check if user was successfully created
-    if [[ $? -eq 0 ]]; then
-        # Write student details to the file
-        echo "$student, $matricule, $username, $password" >> "$output_file"
-        echo "User created: $username"
+    # Create the user account
+    if sudo useradd -m -s /bin/bash -c "$name ($matricule)" "$username"; then
+        echo "$username:$password" | sudo chpasswd
+        sudo passwd -u "$username" &>/dev/null  # Unlock account
+        echo "User created: $name, Matricule: $matricule, Username: $username, Password: $password" | tee -a "$output_log"
     else
-        echo "Failed to create user: $username"
+        echo "Failed to create user: $username" | tee -a "$output_log"
     fi
 }
 
-# Main script execution
-if [[ $# -eq 0 ]]; then
-    # Create all students if no names are provided
-    for i in "${!students[@]}"; do
-        create_student "${students[$i]}" "${matricules[$i]}"
-    done
-else
-    # Create specific students if names are provided
-    for student_name in "$@"; do
-        # Find the index of the student in the array
-        for i in "${!students[@]}"; do
-            if [[ "${students[$i]}" == "$student_name" ]]; then
-                create_student "${students[$i]}" "${matricules[$i]}"
-                break
-            fi
-        done
-    done
-fi
+# Function to create users from a file
+create_users_from_file() {
+    local input_file="../Group_and_Txt_scriptandfile/students_users.txt"
 
-echo "Student user creation completed. Details saved in $output_file."
+    if [[ ! -f "$input_file" ]]; then
+        echo "Error: Input file '$input_file' does not exist."
+        return
+    fi
+
+    # Read the input file line by line (skip the header)
+    tail -n +2 "$input_file" | while IFS=',' read -r name matricule username password dob age; do
+        # Trim whitespace
+        name=$(echo "$name" | xargs)
+        matricule=$(echo "$matricule" | xargs)
+        username=$(echo "$username" | xargs)
+        password=$(echo "$password" | xargs)
+
+        # Check if the username already exists
+        if id "$username" &>/dev/null; then
+            echo "User '$username' already exists. Skipping..." | tee -a "$output_log"
+            continue
+        fi
+
+        # Create the user account
+        if sudo useradd -m -s /bin/bash -c "$name ($matricule)" "$username"; then
+            echo "$username:$password" | sudo chpasswd
+            sudo passwd -u "$username" &>/dev/null  # Unlock account
+            echo "User created: $name, Matricule: $matricule, Username: $username, Password: $password" | tee -a "$output_log"
+        else
+            echo "Failed to create user: $username" | tee -a "$output_log"
+        fi
+    done
+
+    echo "User creation from file completed. Check the log: $output_log"
+}
+
+# Menu for user options
+while true; do
+    echo
+    echo "Choose an option:"
+    echo "1. Add a single student"
+    echo "2. Add students from a file"
+    echo "3. Exit"
+    read -p "Enter your choice (1/2/3): " choice
+
+    case $choice in
+        1)
+            create_single_user
+            ;;
+        2)
+            create_users_from_file
+            ;;
+        3)
+            echo "Exiting..."
+            exit 0
+            ;;
+        *)
+            echo "Invalid choice. Please enter 1, 2, or 3."
+            ;;
+    esac
+done

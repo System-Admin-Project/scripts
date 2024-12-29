@@ -26,19 +26,19 @@ set_folder_permissions() {
 
     # Check if the lecturer exists on the system
     if ! id "$lecturer_name" &>/dev/null; then
-        echo "Error: User $lecturer_name does not exist."
+        echo "Error: User '$lecturer_name' does not exist."
         exit 1
     fi
 
     # Check if the student group exists
     if ! getent group "$student_group" &>/dev/null; then
-        echo "Error: Group $student_group does not exist."
+        echo "Error: Group '$student_group' does not exist."
         exit 1
     fi
 
     # Check if the folder exists
     if [ ! -d "$folder_path" ]; then
-        echo "Error: Folder $folder_path does not exist."
+        echo "Error: Folder '$folder_path' does not exist."
         exit 1
     fi
 
@@ -56,7 +56,7 @@ set_folder_permissions() {
     echo "Folder details:"
     ls -ld "$folder_path"
     
-    echo "Permissions for $folder_path have been set: Lecturer can edit, students can view."
+    echo "Permissions for '$folder_path' have been set: Lecturer can edit, students can view."
 }
 
 # Check if script is run as root

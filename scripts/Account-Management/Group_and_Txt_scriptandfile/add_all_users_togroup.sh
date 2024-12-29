@@ -3,47 +3,9 @@
 # Define the group name
 group_name="academic_group"
 
-# Define lecturers and students
-lecturers=(
-    "Dr. Alice Johnson" 
-    "Prof. Bob Brown" 
-    "Dr. Charlie Davis" 
-    "Dr. Emily Clark" 
-    "Prof. Michael Miller"
-)
-
-students=(
-    "john_doe" 
-    "jane_smith" 
-    "alice_johnson" 
-    "bob_brown" 
-    "charlie_davis" 
-    "emily_clark" 
-    "michael_miller" 
-    "sarah_wilson" 
-    "james_taylor" 
-    "laura_martin" 
-    "david_anderson" 
-    "sophia_moore" 
-    "daniel_harris" 
-    "olivia_thompson" 
-    "matthew_white" 
-    "isabella_lewis" 
-    "andrew_walker" 
-    "emma_hall" 
-    "joseph_king" 
-    "mia_scott" 
-    "christopher_green" 
-    "amelia_adams" 
-    "joshua_nelson" 
-    "elizabeth_baker" 
-    "ryan_carter" 
-    "grace_mitchell" 
-    "lucas_perez" 
-    "chloe_roberts" 
-    "ethan_turner" 
-    "abigail_phillips"
-)
+# File paths for lecturers and students
+lecturers_file="../Group_and_Txt_scriptand file/lecturers_passwords.txt"
+students_file="../Group_and_Txt_scriptandfile/students_users.txt"
 
 # Function to create a group if it doesn't exist
 create_group() {
@@ -66,8 +28,24 @@ add_user_to_group() {
     fi
 }
 
+# Function to read users from a file
+read_users_from_file() {
+    local file="$1"
+    if [[ -f "$file" ]]; then
+        mapfile -t users < "$file"
+        echo "${users[@]}"
+    else
+        echo "Error: File '$file' not found." >&2
+        exit 1
+    fi
+}
+
 # Main script execution
 create_group
+
+# Read lecturers and students from the files
+lecturers=($(read_users_from_file "$lecturers_file"))
+students=($(read_users_from_file "$students_file"))
 
 if [[ $# -eq 0 ]]; then
     # No arguments provided, add all lecturers and students
