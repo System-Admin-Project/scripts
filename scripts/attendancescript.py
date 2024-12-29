@@ -1,5 +1,3 @@
-# Generates attendance for every semester
-
 import csv
 import random
 import os
@@ -39,14 +37,14 @@ def generate_random_time():
 # Assign random days and times to each course
 course_schedule = {}
 for course in courses:
-    days = random.sample(weekdays, 2)  # Randomly select two days per week
-    time = generate_random_time()
-    course_schedule[course] = [(day, time) for day in days]
+    days = random.sample(weekdays, 3)  # Randomly select three days per week
+    time_slots = [generate_random_time() for _ in days]  # Generate random times for each day
+    course_schedule[course] = list(zip(days, time_slots))
 
 # Main function to generate attendance data
 def main():
     # Path to the students.txt file
-    students_file = "students_users.txt"  # Update this path as needed
+    students_file = "./Account-Management/Group_and_Txt_scriptandfile/students_users.txt"  # Update this path as needed
     
     # Read students and matricules from the file
     students, matricules = read_students(students_file)
@@ -57,13 +55,13 @@ def main():
     # Prompt for the base folder path
     base_folder = "../data/FET/Level400/SoftwareEng/Attendance/2024-2025/Semester-1"
 
-    # Loop through courses and generate data for 2 weeks
+    # Loop through courses and generate data for the semester
     for course_name, schedule in course_schedule.items():
         course_folder = os.path.join(base_folder, course_name)
         os.makedirs(course_folder, exist_ok=True)
 
-        for week in range(1, 4):  # Two weeks
-            for day, lecture_time in schedule:  # Consistent days and times for the course
+        for week in range(1, 15):  # 14 weeks in a semester
+            for day, lecture_time in schedule:  # Multiple lectures per week
                 # Calculate the lecture date
                 today = datetime.today()
                 start_of_week = today - timedelta(days=today.weekday()) + timedelta(days=1)  # Start from Tuesday
