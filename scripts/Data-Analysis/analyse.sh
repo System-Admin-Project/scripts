@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Automate to run by the end of CAs
+
 # Base directory where attendance CSV files are stored
 BASE_DIR="../../data/FET/Level400/SoftwareEng/Attendance/2024-2025/Semester-1"
 THRESHOLD=70
