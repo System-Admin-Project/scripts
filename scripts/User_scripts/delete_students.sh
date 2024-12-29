@@ -1,56 +1,107 @@
 #!/bin/bash
+
 set -x
 
-# Define an array of student usernames
-students=(
-    "john_doe" "jane_smith" "alice_johnson" "bob_brown" "charlie_davis"
-    "emily_clark" "michael_miller" "sarah_wilson" "james_taylor" "laura_martin"
-    "david_anderson" "sophia_moore" "daniel_harris" "olivia_thompson" "matthew_white"
-    "isabella_lewis" "andrew_walker" "emma_hall" "joseph_king" "mia_scott"
-    "christopher_green" "amelia_adams" "joshua_nelson" "elizabeth_baker" "ryan_carter"
-    "grace_mitchell" "lucas_perez" "chloe_roberts" "ethan_turner" "abigail_phillips"
-)
+# Define the path to the student users file
+students_file="../Group_and_Txt_scriptandfile/students_users.txt"
+
+# Function to read student usernames from the file
+read_students_from_file() {
+    if [[ ! -f "$students_file" ]]; then
+        echo "File '$students_file' not found. Exiting."
+        exit 1
+    fi
+    awk -F',' 'NR>1 {gsub(/^[ \t]+|[ \t]+$/, "", $3); print $3}' "$students_file"
+}
 
 # Function to delete a student account
 delete_student() {
     local username="$1"
 
     # Delete the user and their home directory
-    sudo userdel -r "$username"
-    
+    sudo userdel -r "$username" &>/dev/null
+
     # Check if the user was successfully deleted
     if [[ $? -eq 0 ]]; then
         echo "User deleted: $username"
     else
-        echo "Failed to delete user: $username"
+        echo "Failed to delete user: $username or user does not exist."
     fi
 }
 
-# Main script execution
-if [[ $# -eq 0 ]]; then
-    echo "No student names provided. This will delete all student accounts!"
-    echo "Are you sure you want to proceed? (y/n)"
-    read -r confirmation
-
-    if [[ "$confirmation" != "y" && "$confirmation" != "Y" ]]; then
-        echo "Operation canceled. No accounts deleted."
-        exit 0
-    fi
-
-    # Delete all student accounts
+# Function to delete all student accounts
+delete_all_students() {
     echo "Deleting all student accounts..."
-    for username in "${students[@]}"; do
+    local usernames
+    usernames=$(read_students_from_file)
+    for username in $usernames; do
         delete_student "$username"
     done
-else
-    # Loop through all provided usernames
-    for student_username in "$@"; do
-        if [[ " ${students[@]} " =~ " ${student_username} " ]]; then
-            delete_student "$student_username"
-        else
-            echo "User '$student_username' not found in the student list."
-        fi
-    done
-fi
+    echo "All student accounts deleted."
+}
 
-echo "Student user deletion completed."
+# Function to delete a single student by username
+delete_single_student() {
+    echo "Enter the username of the student you want to delete:"
+    read -r username
+    local usernames
+    usernames=$(read_students_from_file)
+    if echo "$usernames" | grep -qw "$username"; then
+        delete_student "$username"
+    else
+        echo "User '$username' not found in the student list."
+    fi
+}
+
+# Function to delete students from a file
+delete_from_file() {
+    echo "Enter the path to the file containing usernames to delete:"
+    read -r file_path
+
+    if [[ ! -f "$file_path" ]]; then
+        echo "File '$file_path' not found. Exiting."
+        return
+    fi
+
+    local usernames
+    usernames=$(read_students_from_file)
+    while IFS= read -r username; do
+        if echo "$usernames" | grep -qw "$username"; then
+            delete_student "$username"
+        else
+            echo "User '$username' not found in the student list."
+        fi
+    done < "$file_path"
+
+    echo "Deletion from file completed."
+}
+
+# Main script execution
+echo "Select an option:"
+echo "1) Delete a single student"
+echo "2) Delete all students"
+echo "3) Delete students from a file"
+read -r choice
+
+case "$choice" in
+1)
+    delete_single_student
+    ;;
+2)
+    echo "Are you sure you want to delete all student accounts? (y/n)"
+    read -r confirmation
+    if [[ "$confirmation" == "y" || "$confirmation" == "Y" ]]; then
+        delete_all_students
+    else
+        echo "Operation canceled. No accounts deleted."
+    fi
+    ;;
+3)
+    delete_from_file
+    ;;
+*)
+    echo "Invalid choice. Exiting."
+    ;;
+esac
+
+echo "Student user deletion process completed."

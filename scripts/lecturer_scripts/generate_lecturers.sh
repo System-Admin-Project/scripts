@@ -1,91 +1,115 @@
 #!/bin/bash
 
-# Output file
-output_file="lecturers_users.txt"
+# Output log file
+output_log="created_lecturers.log"
+echo "Log of created lecturers" > "$output_log"
 
-# Define lecturers and matricules
-lecturers=(
-    "Dr. Alice Johnson" "Prof. Bob Brown" "Dr. Charlie Davis" "Dr. Emily Clark" "Prof. Michael Miller"
-)
+# Function to generate a lecturer ID
+generate_lecturer_id() {
+    local total_users=$(awk -F: '$3 >= 1000 {print $1}' /etc/passwd | wc -l)
+    echo "LEC$(printf "%02d" $((total_users + 1)))"
+}
 
-# Generate matricules in the format FE22Lxxx
-matricules=()
-for i in "${!lecturers[@]}"; do
-    matricules+=("FE22L$(printf "%03d" $((i + 1)))")
-done
+# Function to generate a username
+generate_username() {
+    local name="$1"
+    echo "${name,,}" | tr ' ' '_'  # Convert to lowercase and replace spaces with underscores
+}
 
-# Define function to generate random passwords
+# Function to generate a password
 generate_password() {
     local name="$1"
-    local matricule="$2"
-    local base="${name:0:3}"  # First three letters of the first name
-    local matricule_suffix="${matricule:5:2}"  # Last two digits of matricule
+    local lecturer_id="$2"
+    local base="${name:0:3}"  # First three letters of the name
+    local lecturer_suffix="${lecturer_id:3:2}"  # Last two digits of lecturer ID
     local special_characters=("!" "@" "#" "$" "%" "^" "&" "*")
     local special="${special_characters[$RANDOM % ${#special_characters[@]}]}"
     local random_number=$(shuf -i 10-99 -n 1)  # Random number between 10 and 99
-    echo "${base,,}${matricule_suffix}${special}${random_number}"  # Lowercase the base
+    echo "${base,,}${lecturer_suffix}${special}${random_number}"  # Lowercase the base
 }
 
-# Start generating users
-echo "Creating lecturer users and saving details to $output_file..."
+# Function to create a single lecturer
+create_single_lecturer() {
+    read -p "Enter lecturer's full name: " name
 
-# Write header to the output file
-echo "Lecturer Name, Matricule, Username, Password" > "$output_file"
+    lecturer_id=$(generate_lecturer_id)
+    username=$(generate_username "$name")
+    password=$(generate_password "$name" "$lecturer_id")
 
-# Function to create a lecturer account
-create_lecturer() {
-    local lecturer="$1"
-    local matricule="$2"
-    local username=$(echo "${lecturer}" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')  # Create username
-
-    # Check if the user already exists
+    # Check if the username already exists
     if id "$username" &>/dev/null; then
-        echo "User '$username' already exists. Skipping."
+        echo "User '$username' already exists. Skipping..."
         return
     fi
 
-    # Generate password
-    local password=$(generate_password "${lecturer%% *}" "$matricule")
-
-    # Add the system user (requires sudo permissions)
-    if ! sudo useradd -m -s /bin/bash -c "$lecturer" "$username"; then
-        echo "Failed to create user: $username"
-        return
-    fi
-
-    # Set the password for the user
-    echo "$username:$password" | sudo chpasswd
-
-    # Ensure the account is unlocked
-    sudo passwd -u "$username"
-
-    # Check if user was successfully created
-    if [[ $? -eq 0 ]]; then
-        # Write lecturer details to the file
-        echo "$lecturer, $matricule, $username, $password" >> "$output_file"
-        echo "User created: $username"
+    # Create the user account
+    if sudo useradd -m -s /bin/bash -c "$name ($lecturer_id)" "$username"; then
+        echo "$username:$password" | sudo chpasswd
+        sudo passwd -u "$username" &>/dev/null  # Unlock account
+        echo "Lecturer created: $name, Lecturer ID: $lecturer_id, Username: $username, Password: $password" | tee -a "$output_log"
     else
-        echo "Failed to create user: $username"
+        echo "Failed to create lecturer: $username" | tee -a "$output_log"
     fi
 }
 
-# Main script execution
-if [[ $# -eq 0 ]]; then
-    # Create all lecturers if no names are provided
-    for i in "${!lecturers[@]}"; do
-        create_lecturer "${lecturers[$i]}" "${matricules[$i]}"
-    done
-else
-    # Create specific lecturers if names are provided
-    for lecturer_name in "$@"; do
-        # Find the index of the lecturer in the array
-        for i in "${!lecturers[@]}"; do
-            if [[ "${lecturers[$i]}" == "$lecturer_name" ]]; then
-                create_lecturer "${lecturers[$i]}" "${matricules[$i]}"
-                break
-            fi
-        done
-    done
-fi
+# Function to create lecturers from a file
+create_lecturers_from_file() {
+    local input_file="../Group_and_Txt_scriptand file/lecturers_passwords.txt"
 
-echo "Lecturer user creation completed. Details saved in $output_file."
+    if [[ ! -f "$input_file" ]]; then
+        echo "Error: Input file '$input_file' does not exist."
+        return
+    fi
+
+    # Read the input file line by line (skip the header)
+    tail -n +2 "$input_file" | while IFS=',' read -r name lecturer_id username password; do
+        # Trim whitespace
+        name=$(echo "$name" | xargs)
+        lecturer_id=$(echo "$lecturer_id" | xargs)
+        username=$(echo "$username" | xargs)
+        password=$(echo "$password" | xargs)
+
+        # Check if the username already exists
+        if id "$username" &>/dev/null; then
+            echo "User '$username' already exists. Skipping..." | tee -a "$output_log"
+            continue
+        fi
+
+        # Create the user account
+        if sudo useradd -m -s /bin/bash -c "$name ($lecturer_id)" "$username"; then
+            echo "$username:$password" | sudo chpasswd
+            sudo passwd -u "$username" &>/dev/null  # Unlock account
+            echo "Lecturer created: $name, Lecturer ID: $lecturer_id, Username: $username, Password: $password" | tee -a "$output_log"
+        else
+            echo "Failed to create lecturer: $username" | tee -a "$output_log"
+        fi
+    done
+
+    echo "Lecturer creation from file completed. Check the log: $output_log"
+}
+
+# Menu for user options
+while true; do
+    echo
+    echo "Choose an option:"
+    echo "1. Add a single lecturer"
+    echo "2. Add lecturers from a file"
+    echo "3. Exit"
+    read -p "Enter your choice (1/2/3): " choice
+
+    case $choice in
+        1)
+            create_single_lecturer
+            ;;
+        2)
+            create_lecturers_from_file
+            ;;
+        3)
+            echo "Exiting..."
+            exit 0
+            ;;
+        *)
+            echo "Invalid choice. Please enter 1, 2, or 3."
+            ;;
+    esac
+done
