@@ -17,4 +17,4 @@ CRON_JOB="0 9-17/2 * 10-12 2-6 $SCRIPT_PATH >>$LOG_PATH 2>&1"
 echo "Cron job added: "
 crontab -l
 
-echo "This cron job will run from october to december from 9am to 5pm every 2hours ,on Tuesda=ys to saturdays" >>$LOG_PATH 2>&1
+echo "This cron job will run from october to december from 9am to 5pm every 2hours ,on Tuesdays to saturdays" >>$LOG_PATH 2>&1
