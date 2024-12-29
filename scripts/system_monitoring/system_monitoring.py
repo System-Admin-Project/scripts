@@ -5,7 +5,7 @@ from datetime import datetime
 
 # Define the folder containing the CSV files and the archive folder
 csv_folder = "/root/scripts/data/FET/Level400/SoftwareEng/Attendance/2024-2025"  # Update this with your folder path
-archive_folder = "/root/scripts/scripts/system_monitoring/archived"         # Destination for archived files
+archive_folder = "/root/scripts/scripts/archived"         # Destination for archived files
 threshold_mb = 50                         # Set your space threshold in MB
 
 # Ensure the archive folder exists
