@@ -53,7 +53,7 @@ def main():
         return
 
     # Prompt for the base folder path
-    base_folder = "../data/FET/Level400/SoftwareEng/Attendance/2024-2025/Semester-1"
+    base_folder = "../data/FET/Level400/SoftwareEng/Attendance/2025-2026/Semester-2"
 
     # Loop through courses and generate data for the semester
     for course_name, schedule in course_schedule.items():

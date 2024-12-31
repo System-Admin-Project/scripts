@@ -1,0 +1,39 @@
+Summary Report for CEF405
+===============================
+Lecturer: Dr. John Doe
+Email: johndoe@example.com
+
+Students with Attendance < 70%:
+FE22A029 - 54%
+FE22A028 - 40%
+FE22A027 - 38%
+FE22A026 - 52%
+FE22A025 - 42%
+FE22A024 - 50%
+FE22A023 - 61%
+FE22A022 - 47%
+FE22A021 - 57%
+FE22A020 - 50%
+FE22A030 - 40%
+FE22A005 - 50%
+FE22A004 - 47%
+FE22A007 - 52%
+FE22A006 - 57%
+FE22A001 - 50%
+FE22A003 - 54%
+FE22A002 - 52%
+FE22A009 - 47%
+FE22A008 - 38%
+FE22A012 - 45%
+FE22A013 - 40%
+FE22A010 - 64%
+FE22A011 - 54%
+FE22A016 - 30%
+FE22A014 - 42%
+FE22A015 - 59%
+FE22A018 - 57%
+FE22A019 - 50%
+
+Total Students: 30
+Total Classes: 42
+Students with Attendance < 70%: 29

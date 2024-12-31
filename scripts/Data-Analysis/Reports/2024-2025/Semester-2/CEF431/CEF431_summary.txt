@@ -1,0 +1,40 @@
+Summary Report for CEF431
+===============================
+Lecturer: Dr. John Doe
+Email: johndoe@example.com
+
+Students with Attendance < 70%:
+FE22A029 - 52%
+FE22A028 - 38%
+FE22A027 - 50%
+FE22A026 - 50%
+FE22A025 - 45%
+FE22A024 - 52%
+FE22A023 - 40%
+FE22A022 - 57%
+FE22A021 - 42%
+FE22A020 - 57%
+FE22A030 - 47%
+FE22A005 - 59%
+FE22A004 - 35%
+FE22A007 - 61%
+FE22A006 - 45%
+FE22A001 - 61%
+FE22A003 - 59%
+FE22A002 - 52%
+FE22A009 - 59%
+FE22A008 - 45%
+FE22A012 - 47%
+FE22A013 - 35%
+FE22A010 - 47%
+FE22A011 - 45%
+FE22A016 - 59%
+FE22A017 - 45%
+FE22A014 - 47%
+FE22A015 - 50%
+FE22A018 - 52%
+FE22A019 - 47%
+
+Total Students: 30
+Total Classes: 42
+Students with Attendance < 70%: 30

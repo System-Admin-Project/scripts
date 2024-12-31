@@ -1,7 +1,7 @@
 Summary Report for CEF401
 ===============================
 Lecturer: Dr. John Doe
-Email: jane.eloundou@gmail.com
+Email: johndoe@example.com
 
 Students with Attendance < 70%:
 FE22A029 - 66%
