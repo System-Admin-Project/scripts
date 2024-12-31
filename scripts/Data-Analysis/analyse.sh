@@ -4,6 +4,26 @@
 BASE_DIR="../../data/FET/Level400/SoftwareEng/Attendance"
 THRESHOLD=70
 
+# File containing lecturer information
+LECTURERS_FILE="../Account-Management/Group_and_Txt_scriptandfile/lecturers_passwords.txt"
+
+# Declare associative arrays to store emails and names for each course
+declare -A course_emails
+declare -A course_lecturers
+
+# Function to load lecturer details from the txt file
+load_lecturer_details() {
+  while IFS=',' read -r lecturer_name lecturer_id username password course email; do
+    # Remove leading/trailing whitespaces
+    course=$(echo "$course" | xargs)
+    lecturer_name=$(echo "$lecturer_name" | xargs)
+    email=$(echo "$email" | xargs)
+    # Map course to lecturer details
+    course_emails["$course"]="$email"
+    course_lecturers["$course"]="$lecturer_name"
+  done < <(tail -n +2 "$LECTURERS_FILE") # Skip the header row
+}
+
 # Function to calculate attendance for all students in a course
 calculate_course_attendance() {
   local course_folder=$1
@@ -22,6 +42,14 @@ calculate_course_attendance() {
   local detailed_file="$output_folder/${course_name}_detailed.txt"
   local summary_file="$output_folder/${course_name}_summary.txt"
 
+  # Get lecturer name and email from the course_lecturers and course_emails arrays
+  local lecturer_name="${course_lecturers[$course_name]}"
+  local lecturer_email="${course_emails[$course_name]}"
+  if [[ -z "$lecturer_email" || -z "$lecturer_name" ]]; then
+    echo "No email or name found for course $course_name. Skipping."
+    return
+  fi
+
   # Initialize files
   echo "Detailed Attendance Report for $course_name" > "$detailed_file"
   echo "===============================" >> "$detailed_file"
@@ -29,8 +57,6 @@ calculate_course_attendance() {
   echo "===============================" >> "$summary_file"
 
   # Include lecturer's name and email in the summary file
-  local lecturer_name="Dr. John Doe"
-  local lecturer_email="johndoe@example.com"
   echo "Lecturer: $lecturer_name" >> "$summary_file"
   echo "Email: $lecturer_email" >> "$summary_file"
   echo "" >> "$summary_file"
@@ -92,6 +118,9 @@ calculate_course_attendance() {
   echo "Students with Attendance < $THRESHOLD%: $low_attendance_count" >> "$summary_file"
 }
 
+# Load lecturer details into associative arrays
+load_lecturer_details
+
 # Traverse all year, semester, and course folders
 for year_folder in "$BASE_DIR"/*; do
   if [[ -d "$year_folder" ]]; then
@@ -111,6 +140,3 @@ for year_folder in "$BASE_DIR"/*; do
     done
   fi
 done
-
-
-
