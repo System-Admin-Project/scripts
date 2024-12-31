@@ -22,7 +22,7 @@ def read_students(file_path):
     return students, matricules
 
 # List of courses
-courses = ["CEF401", "CEF473", "CEF405", "CEF415", "CEF451", "CEF427", "CEF431"]
+courses = ["CEF401", "CEF473", "CEF405", "CEF415", "CEF451"]
 
 # Days of the week
 weekdays = ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -53,7 +53,7 @@ def main():
         return
 
     # Prompt for the base folder path
-    base_folder = "../data/FET/Level400/SoftwareEng/Attendance/2025-2026/Semester-2"
+    base_folder = "../data/FET/Level400/SoftwareEng/Attendance/2024-2025/Semester-1"
 
     # Loop through courses and generate data for the semester
     for course_name, schedule in course_schedule.items():
