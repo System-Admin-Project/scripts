@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # File containing lecturer information
-lecturers_file="../Group_and_Txt_scriptand file/lecturers_passwords.txt"
+lecturers_file="../Group_and_Txt_scriptandfile/lecturers_passwords.txt"
 
 # Log file for deleted lecturers
 output_file="deleted_lecturers.log"

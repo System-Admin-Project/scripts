@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -x  # Enable debugging (optional)
 
 # Define the path to the student users file
 students_file="../Group_and_Txt_scriptandfile/students_users.txt"
@@ -11,12 +11,18 @@ read_students_from_file() {
         echo "File '$students_file' not found. Exiting."
         exit 1
     fi
+    # Extract the third column (username) from the file, skipping the header
     awk -F',' 'NR>1 {gsub(/^[ \t]+|[ \t]+$/, "", $3); print $3}' "$students_file"
 }
 
 # Function to delete a student account
 delete_student() {
     local username="$1"
+
+    # Kill any processes owned by the user
+    if pgrep -u "$username" > /dev/null 2>&1; then
+        sudo pkill -u "$username"
+    fi
 
     # Delete the user and their home directory
     sudo userdel -r "$username" &>/dev/null
@@ -27,7 +33,20 @@ delete_student() {
     else
         echo "Failed to delete user: $username or user does not exist."
     fi
+
+    # Check and remove leftover home directory if it exists
+    if [[ -d "/home/$username" ]]; then
+        sudo rm -rf "/home/$username"
+        echo "Leftover home directory for '$username' removed."
+    fi
+
+    # Ensure the user is removed from /etc/passwd
+    if grep -q "^$username:" /etc/passwd; then
+        sudo sed -i "/^$username:/d" /etc/passwd
+        echo "Removed '$username' entry from /etc/passwd."
+    fi
 }
+
 
 # Function to delete all student accounts
 delete_all_students() {
@@ -88,13 +107,14 @@ case "$choice" in
     delete_single_student
     ;;
 2)
-    echo "Are you sure you want to delete all student accounts? (y/n)"
-    read -r confirmation
-    if [[ "$confirmation" == "y" || "$confirmation" == "Y" ]]; then
-        delete_all_students
-    else
-        echo "Operation canceled. No accounts deleted."
-    fi
+   echo "Are you sure you want to delete all student accounts? (y/n)"
+read -r confirmation
+if [ "$confirmation" = "y" ] || [ "$confirmation" = "Y" ]; then
+    delete_all_students
+else
+    echo "Operation canceled. No accounts deleted."
+fi
+
     ;;
 3)
     delete_from_file

@@ -4,7 +4,7 @@
 group_name="academic_group"
 
 # File paths for lecturers and students
-lecturers_file="../Group_and_Txt_scriptand file/lecturers_passwords.txt"
+lecturers_file="../Group_and_Txt_scriptandfile/lecturers_passwords.txt"
 students_file="../Group_and_Txt_scriptandfile/students_users.txt"
 
 # Function to create a group if it doesn't exist
@@ -28,12 +28,11 @@ add_user_to_group() {
     fi
 }
 
-# Function to read users from a file
-read_users_from_file() {
+# Function to read usernames from a file
+read_usernames_from_file() {
     local file="$1"
     if [[ -f "$file" ]]; then
-        mapfile -t users < "$file"
-        echo "${users[@]}"
+        awk -F',' 'NR > 1 {gsub(/^[ \t]+|[ \t]+$/, "", $3); print $3}' "$file"
     else
         echo "Error: File '$file' not found." >&2
         exit 1
@@ -43,24 +42,20 @@ read_users_from_file() {
 # Main script execution
 create_group
 
-# Read lecturers and students from the files
-lecturers=($(read_users_from_file "$lecturers_file"))
-students=($(read_users_from_file "$students_file"))
+# Read usernames from the files
+lecturers=$(read_usernames_from_file "$lecturers_file")
+students=$(read_usernames_from_file "$students_file")
 
-if [[ $# -eq 0 ]]; then
-    # No arguments provided, add all lecturers and students
-    for lecturer in "${lecturers[@]}"; do
-        add_user_to_group "$lecturer"
-    done
+# Add all lecturers to the group
+echo "Adding lecturers to group '$group_name'..."
+while IFS= read -r lecturer; do
+    add_user_to_group "$lecturer"
+done <<< "$lecturers"
 
-    for student in "${students[@]}"; do
-        add_user_to_group "$student"
-    done
-else
-    # Add specified user(s)
-    for user in "$@"; do
-        add_user_to_group "$user"
-    done
-fi
+# Add all students to the group
+echo "Adding students to group '$group_name'..."
+while IFS= read -r student; do
+    add_user_to_group "$student"
+done <<< "$students"
 
 echo "User addition process completed."

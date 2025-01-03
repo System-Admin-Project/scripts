@@ -13,7 +13,7 @@ generate_lecturer_id() {
 # Function to generate a username
 generate_username() {
     local name="$1"
-    echo "${name,,}" | tr ' ' '_'  # Convert to lowercase and replace spaces with underscores
+    echo "${name,,}" | tr ' ' '_'
 }
 
 # Function to generate a password
@@ -25,7 +25,7 @@ generate_password() {
     local special_characters=("!" "@" "#" "$" "%" "^" "&" "*")
     local special="${special_characters[$RANDOM % ${#special_characters[@]}]}"
     local random_number=$(shuf -i 10-99 -n 1)  # Random number between 10 and 99
-    echo "${base,,}${lecturer_suffix}${special}${random_number}"  # Lowercase the base
+    echo "${base,,}${lecturer_suffix}${special}${random_number}"
 }
 
 # Function to create a single lecturer
@@ -54,7 +54,7 @@ create_single_lecturer() {
 
 # Function to create lecturers from a file
 create_lecturers_from_file() {
-    local input_file="../Group_and_Txt_scriptand file/lecturers_passwords.txt"
+    local input_file="../Group_and_Txt_scriptandfile/lecturers_passwords.txt"
 
     if [[ ! -f "$input_file" ]]; then
         echo "Error: Input file '$input_file' does not exist."
@@ -62,7 +62,7 @@ create_lecturers_from_file() {
     fi
 
     # Read the input file line by line (skip the header)
-    tail -n +2 "$input_file" | while IFS=',' read -r name lecturer_id username password; do
+    tail -n +2 "$input_file" | while IFS=',' read -r name lecturer_id username password course email; do
         # Trim whitespace
         name=$(echo "$name" | xargs)
         lecturer_id=$(echo "$lecturer_id" | xargs)
