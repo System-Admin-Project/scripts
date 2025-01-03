@@ -1,0 +1,40 @@
+Summary Report for CEF451
+===============================
+Lecturer: Dr. Achille Fumtchum
+Email: drachille@gmail.com
+
+Students with Attendance < 70%:
+FE22A029 - 42%
+FE22A028 - 52%
+FE22A027 - 54%
+FE22A026 - 47%
+FE22A025 - 64%
+FE22A024 - 64%
+FE22A023 - 45%
+FE22A022 - 50%
+FE22A021 - 61%
+FE22A020 - 54%
+FE22A030 - 33%
+FE22A005 - 54%
+FE22A004 - 47%
+FE22A007 - 40%
+FE22A006 - 45%
+FE22A001 - 54%
+FE22A003 - 54%
+FE22A002 - 64%
+FE22A009 - 40%
+FE22A008 - 52%
+FE22A012 - 59%
+FE22A013 - 47%
+FE22A010 - 47%
+FE22A011 - 54%
+FE22A016 - 35%
+FE22A017 - 59%
+FE22A014 - 59%
+FE22A015 - 40%
+FE22A018 - 45%
+FE22A019 - 45%
+
+Total Students: 30
+Total Classes: 42
+Students with Attendance < 70%: 30

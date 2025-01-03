@@ -22,7 +22,7 @@ def read_students(file_path):
     return students, matricules
 
 # List of courses
-courses = ["CEF401", "CEF473", "CEF405", "CEF415", "CEF451", "CEF427", "CEF431"]
+courses = ["CEF401", "CEF473", "CEF405", "CEF415", "CEF451"]
 
 # Days of the week
 weekdays = ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
