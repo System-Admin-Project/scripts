@@ -2,10 +2,12 @@
 
 # Usage information function
 usage() {
-    echo "Usage: sudo $0 username [full_name] [shell]"
-    echo "  username   : The username of the account to modify."
-    echo "  full_name  : (Optional) The new full name for the user."
-    echo "  shell      : (Optional) The new shell for the user (e.g., /bin/bash)."
+    echo "Usage: sudo $0 username [options]"
+    echo "Options:"
+    echo "  --name [full_name]      : Update the full name of the user."
+    echo "  --password [new_pass]   : Update the password for the user."
+    echo "  --shell [shell_path]    : Update the login shell for the user."
+    echo "  --file [file_path]      : Update the user information in a specific file."
     exit 1
 }
 
@@ -22,6 +24,39 @@ fi
 
 # Read the username from the first argument
 username="$1"
+shift
+
+# Initialize optional parameters
+full_name=""
+new_password=""
+shell=""
+file_path=""
+
+# Parse optional arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --name)
+            full_name="$2"
+            shift 2
+            ;;
+        --password)
+            new_password="$2"
+            shift 2
+            ;;
+        --shell)
+            shell="$2"
+            shift 2
+            ;;
+        --file)
+            file_path="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
+    esac
+done
 
 # Check if the user exists
 if ! id "$username" &>/dev/null; then
@@ -29,20 +64,7 @@ if ! id "$username" &>/dev/null; then
     exit 1
 fi
 
-# Initialize optional parameters
-full_name=""
-shell=""
-
-# Parse optional parameters
-if [ $# -ge 2 ]; then
-    full_name="$2"
-fi
-
-if [ $# -ge 3 ]; then
-    shell="$3"
-fi
-
-# Modify user information
+# Modify system user information
 changes_made=0
 
 if [ -n "$full_name" ]; then
@@ -55,6 +77,16 @@ if [ -n "$full_name" ]; then
     fi
 fi
 
+if [ -n "$new_password" ]; then
+    echo "$username:$new_password" | sudo chpasswd
+    if [[ $? -eq 0 ]]; then
+        echo "Successfully updated password for '$username'."
+        changes_made=1
+    else
+        echo "Error: Failed to update password for '$username'."
+    fi
+fi
+
 if [ -n "$shell" ]; then
     sudo usermod -s "$shell" "$username"
     if [[ $? -eq 0 ]]; then
@@ -63,6 +95,32 @@ if [ -n "$shell" ]; then
     else
         echo "Error: Failed to update shell for '$username'."
     fi
+fi
+
+# Modify file content if a file is specified
+if [ -n "$file_path" ]; then
+    if [[ ! -f "$file_path" ]]; then
+        echo "Error: File '$file_path' not found."
+        exit 1
+    fi
+
+    # Backup the file
+    cp "$file_path" "$file_path.bak"
+    
+    # Update user information in the file
+    awk -F',' -v user="$username" -v name="$full_name" -v pass="$new_password" -v shell="$shell" '
+    BEGIN { OFS = FS }
+    $3 == user {
+        if (name != "") $1 = name
+        if (pass != "") $4 = pass
+        if (shell != "") $5 = shell
+    }
+    { print }
+    ' "$file_path" > "${file_path}.tmp"
+
+    mv "${file_path}.tmp" "$file_path"
+    echo "User information updated in file '$file_path'."
+    changes_made=1
 fi
 
 # Report changes or lack thereof
