@@ -34,7 +34,7 @@ restrict_access() {
 }
 
 # Prompt the user for folder paths
-echo "Enter the full paths of the folders you want to restrict, separated by spaces:"
+echo "Enter the full paths of the folders you want to restrict,please let it be separated by spaces:"
 read -r -a folder_paths
 
 # Process each folder path
